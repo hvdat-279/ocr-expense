@@ -107,7 +107,7 @@ class _BarChartPainter extends CustomPainter {
 
     // Background horizontal dashed gridlines
     final gridPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.18)
+      ..color = Colors.grey.withValues(alpha: 0.18)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 

@@ -434,13 +434,13 @@ class _CalendarHistoryTabState extends State<CalendarHistoryTab> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Khoảnh khắc Locket (${photoTransactions.length} ảnh)',
+                  'Khoảnh khắc (${photoTransactions.length} ảnh)',
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                 ),
               ],
             ),
             Text(
-              'Chạm để xem to',
+              'Chạm để xem & lướt (${photoTransactions.length})',
               style: TextStyle(fontSize: 11.5, color: Colors.blue.shade600, fontWeight: FontWeight.w600),
             ),
           ],
@@ -458,7 +458,7 @@ class _CalendarHistoryTabState extends State<CalendarHistoryTab> {
               final file = File(tx.receiptImagePath);
 
               return GestureDetector(
-                onTap: () => _showFullImageDialog(tx),
+                onTap: () => _showFullImageDialog(photoTransactions, index),
                 child: Hero(
                   tag: 'locket_${tx.id}_${tx.receiptImagePath}',
                   child: Container(
@@ -541,120 +541,232 @@ class _CalendarHistoryTabState extends State<CalendarHistoryTab> {
     );
   }
 
-  void _showFullImageDialog(TransactionEntity tx) {
-    final file = File(tx.receiptImagePath);
+  void _showFullImageDialog(List<TransactionEntity> photos, int initialIndex) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 25,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header Locket
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.lens_blur, color: Colors.amberAccent, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          tx.merchantName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ),
-              // Big Locket Photo
-              if (file.existsSync())
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 380),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.file(file, fit: BoxFit.contain),
-                  ),
-                )
-              else
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 50),
-                  child: Column(
+      builder: (_) => _LocketPhotoViewer(
+        photos: photos,
+        initialIndex: initialIndex,
+      ),
+    );
+  }
+}
+
+class _LocketPhotoViewer extends StatefulWidget {
+  final List<TransactionEntity> photos;
+  final int initialIndex;
+
+  const _LocketPhotoViewer({
+    required this.photos,
+    required this.initialIndex,
+  });
+
+  @override
+  State<_LocketPhotoViewer> createState() => _LocketPhotoViewerState();
+}
+
+class _LocketPhotoViewerState extends State<_LocketPhotoViewer> {
+  late final PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentTx = widget.photos[_currentIndex];
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header Locket
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
-                      Icon(Icons.broken_image_outlined, color: Colors.white38, size: 48),
-                      SizedBox(height: 8),
-                      Text('Không tìm thấy tệp ảnh', style: TextStyle(color: Colors.white70)),
+                      const Icon(Icons.lens_blur, color: Colors.amberAccent, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        currentTx.merchantName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              // Footer Caption
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(18),
-                color: const Color(0xFF1E293B),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(tx.amount),
-                          style: TextStyle(
-                            fontSize: 18,
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${_currentIndex + 1}/${widget.photos.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: tx.type == TransactionType.expense
-                                ? const Color(0xFFEF4444)
-                                : const Color(0xFF10B981),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            tx.category.displayName,
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Swipeable PageView with InteractiveViewer for zoom
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 380),
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: widget.photos.length,
+                onPageChanged: (idx) {
+                  setState(() {
+                    _currentIndex = idx;
+                  });
+                },
+                itemBuilder: (context, idx) {
+                  final tx = widget.photos[idx];
+                  final file = File(tx.receiptImagePath);
+
+                  if (!file.existsSync()) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image_outlined, color: Colors.white38, size: 48),
+                            SizedBox(height: 8),
+                            Text('Không tìm thấy tệp ảnh', style: TextStyle(color: Colors.white70)),
+                          ],
                         ),
-                      ],
+                      ),
+                    );
+                  }
+
+                  return InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 3.0,
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.file(
+                          file,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Thời gian: ${DateFormat('dd/MM/yyyy HH:mm').format(tx.date)}${tx.note.isNotEmpty ? '\nGhi chú: ${tx.note}' : ''}',
-                      style: const TextStyle(color: Colors.white60, fontSize: 12),
+                  );
+                },
+              ),
+            ),
+
+            // Swipe indicator dots if multiple photos
+            if (widget.photos.length > 1) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(widget.photos.length, (idx) {
+                  final isSelected = idx == _currentIndex;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: isSelected ? 18 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.amberAccent : Colors.white24,
+                      borderRadius: BorderRadius.circular(3),
                     ),
-                  ],
-                ),
+                  );
+                }),
               ),
             ],
-          ),
+
+            const SizedBox(height: 10),
+
+            // Footer Caption
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              color: const Color(0xFF1E293B),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(currentTx.amount),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: currentTx.type == TransactionType.expense
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFF10B981),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          currentTx.category.displayName,
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Thời gian: ${DateFormat('dd/MM/yyyy HH:mm').format(currentTx.date)}${currentTx.note.isNotEmpty ? '\nGhi chú: ${currentTx.note}' : ''}',
+                    style: const TextStyle(color: Colors.white60, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
