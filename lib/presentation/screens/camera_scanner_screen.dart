@@ -258,7 +258,7 @@ class _CameraScannerScreenState extends State<CameraScannerScreen> {
                           const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 14),
                           const SizedBox(width: 5),
                           Text(
-                            _isProcessing ? _statusMessage : 'Gemini AI Vision + ML Kit',
+                            _isProcessing ? _statusMessage : 'Nhận diện AI Thông minh',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -329,7 +329,7 @@ class _CameraScannerScreenState extends State<CameraScannerScreen> {
 
                     // Test OCR with sample button
                     IconButton(
-                      tooltip: 'Demo AI Scan',
+                      tooltip: 'Thử nghiệm quét mẫu',
                       icon: const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 34),
                       onPressed: _isProcessing
                           ? null

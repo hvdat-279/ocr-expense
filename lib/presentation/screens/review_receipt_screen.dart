@@ -194,7 +194,7 @@ class _ReviewReceiptScreenState extends State<ReviewReceiptScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'TIỀN CHI (Expense)',
+                              'TIỀN CHI',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: isExpense ? Colors.white : Colors.grey.shade700,
@@ -241,7 +241,7 @@ class _ReviewReceiptScreenState extends State<ReviewReceiptScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'TIỀN THU (Income)',
+                              'TIỀN THU',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: !isExpense ? Colors.white : Colors.grey.shade700,
@@ -294,7 +294,7 @@ class _ReviewReceiptScreenState extends State<ReviewReceiptScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  widget.geminiResult != null ? 'AI Gemini Flash 1.5' : 'On-Device OCR',
+                                  widget.geminiResult != null ? 'Trí tuệ AI' : 'Nhận diện OCR',
                                   style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                                 ),
                               ],

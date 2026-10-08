@@ -20,15 +20,15 @@ enum ExpenseCategory {
   String get displayName {
     switch (this) {
       case ExpenseCategory.food:
-        return 'Food';
+        return 'Ăn uống';
       case ExpenseCategory.study:
-        return 'Study';
+        return 'Học tập';
       case ExpenseCategory.travel:
-        return 'Travel';
+        return 'Đi lại';
       case ExpenseCategory.gear:
-        return 'Gear';
+        return 'Thiết bị';
       case ExpenseCategory.entertainment:
-        return 'Entertainment';
+        return 'Giải trí';
       case ExpenseCategory.salary:
         return 'Lương / Thưởng';
       case ExpenseCategory.gift:
@@ -40,13 +40,21 @@ enum ExpenseCategory {
 
   static ExpenseCategory fromString(String? name) {
     if (name == null) return ExpenseCategory.food;
+    final lower = name.toLowerCase().trim();
     for (var cat in ExpenseCategory.values) {
-      if (cat.name.toLowerCase() == name.toLowerCase() ||
-          cat.displayName.toLowerCase() == name.toLowerCase()) {
+      if (cat.name.toLowerCase() == lower ||
+          cat.displayName.toLowerCase() == lower) {
         return cat;
       }
     }
-    return ExpenseCategory.food;
+    if (lower.contains('ăn') || lower.contains('uống') || lower.contains('food') || lower.contains('cà phê') || lower.contains('coffee')) return ExpenseCategory.food;
+    if (lower.contains('học') || lower.contains('study') || lower.contains('sách') || lower.contains('vở') || lower.contains('book')) return ExpenseCategory.study;
+    if (lower.contains('đi') || lower.contains('travel') || lower.contains('xăng') || lower.contains('xe') || lower.contains('grab')) return ExpenseCategory.travel;
+    if (lower.contains('thiết bị') || lower.contains('gear') || lower.contains('máy') || lower.contains('phụ kiện')) return ExpenseCategory.gear;
+    if (lower.contains('giải trí') || lower.contains('entertainment') || lower.contains('phim') || lower.contains('game')) return ExpenseCategory.entertainment;
+    if (lower.contains('lương') || lower.contains('salary') || lower.contains('thu nhập')) return ExpenseCategory.salary;
+    if (lower.contains('quà') || lower.contains('gift') || lower.contains('trợ cấp')) return ExpenseCategory.gift;
+    return ExpenseCategory.other;
   }
 }
 

@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (_) => ExpenseBloc(repository: repository)..add(LoadDashboardDataEvent()),
       child: MaterialApp(
-        title: 'VKU OCR Expense Tracker',
+        title: 'VKU Sổ Chi Tiêu AI',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,

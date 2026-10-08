@@ -374,7 +374,7 @@ class _OverviewTab extends StatelessWidget {
                   children: [
                     Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 14),
                     SizedBox(width: 4),
-                    Text('Gemini AI On-device', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text('Trợ lý AI Gemini', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
