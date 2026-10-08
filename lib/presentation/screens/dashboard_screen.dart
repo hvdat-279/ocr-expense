@@ -27,50 +27,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
+        titleSpacing: 12,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color: const Color(0xFF2563EB).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF2563EB), size: 22),
+              child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF2563EB), size: 20),
             ),
-            const SizedBox(width: 10),
-            const Text(
-              'VKU Sổ Chi Tiêu AI',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            const SizedBox(width: 8),
+            const Flexible(
+              child: Text(
+                'VKU Sổ Chi Tiêu AI',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ),
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Nạp dữ liệu & ảnh hóa đơn mẫu',
-            icon: const Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF2563EB)),
-            onPressed: () {
-              context.read<ExpenseBloc>().add(SeedSampleDataEvent());
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Row(
-                    children: [
-                      Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 20),
-                      SizedBox(width: 8),
-                      Text('Đã nạp 6 hóa đơn mẫu & ảnh Locket các ngày!'),
-                    ],
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: const Color(0xFF1E293B),
-                  margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height - 150,
-                    left: 20,
-                    right: 20,
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            },
-          ),
           BlocBuilder<ExpenseBloc, ExpenseState>(
             builder: (context, state) {
               final txs = (state is ExpenseLoadedState) ? state.transactions : <TransactionEntity>[];
