@@ -39,7 +39,8 @@ class _ReviewReceiptScreenState extends State<ReviewReceiptScreen> {
 
     final amount = widget.geminiResult?.amount ?? widget.parsedResult?.amount ?? 0.0;
     final merchant = widget.geminiResult?.merchantName ?? widget.parsedResult?.merchantName ?? '';
-    final date = widget.geminiResult?.date ?? widget.parsedResult?.date ?? DateTime.now();
+    // Always default to today's date when captured, so demoing with old receipts still shows up on today's calendar
+    final date = DateTime.now();
     final cat = widget.geminiResult?.category ?? widget.parsedResult?.suggestedCategory ?? ExpenseCategory.food;
     final type = widget.geminiResult?.type ?? TransactionType.expense;
     final note = widget.geminiResult?.note ?? '';
