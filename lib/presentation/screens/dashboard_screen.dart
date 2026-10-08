@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:vku_ocr_expense/core/services/sample_data_service.dart';
 import 'package:vku_ocr_expense/domain/entities/transaction_entity.dart';
 import 'package:vku_ocr_expense/presentation/bloc/expense_bloc.dart';
 import 'package:vku_ocr_expense/presentation/bloc/expense_event.dart';
@@ -43,6 +45,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Nạp dữ liệu & ảnh hóa đơn mẫu',
+            icon: const Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF2563EB)),
+            onPressed: () {
+              context.read<ExpenseBloc>().add(SeedSampleDataEvent());
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Row(
+                    children: [
+                      Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 20),
+                      SizedBox(width: 8),
+                      Text('Đã nạp 6 hóa đơn mẫu & ảnh Locket các ngày!'),
+                    ],
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: const Color(0xFF1E293B),
+                  margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height - 150,
+                    left: 20,
+                    right: 20,
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          BlocBuilder<ExpenseBloc, ExpenseState>(
+            builder: (context, state) {
+              final txs = (state is ExpenseLoadedState) ? state.transactions : <TransactionEntity>[];
+              return IconButton(
+                tooltip: 'Xuất dữ liệu CSV / Excel',
+                icon: const Icon(Icons.file_download_outlined, color: Color(0xFF10B981)),
+                onPressed: () => _showExportDialog(context, txs),
+              );
+            },
+          ),
           IconButton(
             tooltip: 'Xóa toàn bộ dữ liệu mẫu',
             icon: const Icon(Icons.delete_sweep_outlined, color: Colors.redAccent),
@@ -193,6 +231,117 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: const [
           _OverviewTab(),
           CalendarHistoryTab(),
+        ],
+      ),
+    );
+  }
+
+  void _showExportDialog(BuildContext context, List<TransactionEntity> transactions) {
+    if (transactions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chưa có giao dịch nào để xuất! Hãy quét hóa đơn hoặc bấm nút "Nạp dữ liệu mẫu".'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final csvText = SampleDataService.generateCsv(transactions);
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.file_download_done, color: Color(0xFF10B981)),
+            SizedBox(width: 8),
+            Text('Xuất dữ liệu chi tiêu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'File CSV chuẩn UTF-8, mở trực tiếp bằng Microsoft Excel hoặc Google Sheets không bị lỗi font tiếng Việt.',
+              style: TextStyle(fontSize: 12.5, color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 130,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: SingleChildScrollView(
+                child: Text(
+                  csvText,
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Tổng cộng: ${transactions.length} giao dịch sẵn sàng xuất.',
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.copy, size: 18),
+            label: const Text('Sao chép CSV'),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: csvText));
+              Navigator.pop(dialogCtx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white, size: 20),
+                      SizedBox(width: 8),
+                      Text('Đã sao chép toàn bộ CSV vào Clipboard!'),
+                    ],
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            icon: const Icon(Icons.download, size: 18),
+            label: const Text('Tải file CSV'),
+            onPressed: () async {
+              try {
+                final file = await SampleDataService.exportCsvToFile(transactions);
+                if (!context.mounted) return;
+                Navigator.pop(dialogCtx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Đã lưu file thành công tại:\n${file.path}'),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Colors.green.shade800,
+                    duration: const Duration(seconds: 4),
+                  ),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Lỗi khi lưu file: $e')),
+                );
+              }
+            },
+          ),
         ],
       ),
     );
@@ -608,3 +757,4 @@ class _OverviewTab extends StatelessWidget {
     );
   }
 }
+

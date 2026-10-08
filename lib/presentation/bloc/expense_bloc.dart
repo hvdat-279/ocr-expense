@@ -13,6 +13,20 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     on<UpdateTransactionEvent>(_onUpdateTransaction);
     on<DeleteTransactionEvent>(_onDeleteTransaction);
     on<ClearAllTransactionsEvent>(_onClearAllTransactions);
+    on<SeedSampleDataEvent>(_onSeedSampleData);
+  }
+
+  Future<void> _onSeedSampleData(
+    SeedSampleDataEvent event,
+    Emitter<ExpenseState> emit,
+  ) async {
+    emit(ExpenseLoadingState());
+    try {
+      await repository.seedSampleData();
+      add(LoadDashboardDataEvent());
+    } catch (e) {
+      emit(ExpenseErrorState('Lỗi nạp dữ liệu mẫu: $e'));
+    }
   }
 
   Future<void> _onLoadDashboardData(

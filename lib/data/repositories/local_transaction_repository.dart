@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:vku_ocr_expense/core/services/sample_data_service.dart';
 import 'package:vku_ocr_expense/data/models/transaction_model.dart';
 import 'package:vku_ocr_expense/domain/entities/transaction_entity.dart';
 import 'package:vku_ocr_expense/domain/repositories/transaction_repository.dart';
@@ -173,6 +174,11 @@ class LocalTransactionRepository implements TransactionRepository {
       return;
     }
     await db.delete(_tableName);
+  }
+
+  @override
+  Future<void> seedSampleData() async {
+    await SampleDataService.seedRealisticData(this);
   }
 
   @override

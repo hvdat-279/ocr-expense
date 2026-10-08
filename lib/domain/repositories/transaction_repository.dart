@@ -7,6 +7,7 @@ abstract class TransactionRepository {
   Future<int> updateTransaction(TransactionEntity transaction);
   Future<int> deleteTransaction(int id);
   Future<void> clearAllTransactions();
+  Future<void> seedSampleData();
   Future<Map<ExpenseCategory, double>> getSpendingByCategory({TransactionType type = TransactionType.expense});
   Future<Map<String, double>> getWeeklySpending({TransactionType type = TransactionType.expense});
   Future<List<TransactionEntity>> getTransactionsByDate(DateTime date);

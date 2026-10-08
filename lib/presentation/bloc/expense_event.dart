@@ -32,3 +32,4 @@ class DeleteTransactionEvent extends ExpenseEvent {
 
 class ClearAllTransactionsEvent extends ExpenseEvent {}
 
+class SeedSampleDataEvent extends ExpenseEvent {}
