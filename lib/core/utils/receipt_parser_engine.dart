@@ -28,7 +28,7 @@ class ReceiptParserEngine {
       return ParsedReceiptResult(
         amount: 0.0,
         date: DateTime.now(),
-        merchantName: 'Unknown Merchant',
+        merchantName: 'Cửa hàng',
         suggestedCategory: ExpenseCategory.food,
         rawText: rawText,
       );
